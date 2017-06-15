@@ -56,17 +56,6 @@ public class Finder {
             return ' ';
         }
         
-        /*
-        //pega a posicao da consoante
-        int consoanteIndex = chars.indexOf(consoante);
-        //comeca a pesquisar na lista a partir do indice da consoante
-        Character vogal = chars.subList(consoanteIndex, chars.size()).stream().filter(c -> {
-            if(isVogal(c) && chars.stream().filter(cc -> cc.equals(c)).count() == 1) {
-                return true;
-            }
-            return false;
-        }).findFirst().orElseThrow(NoValueFoundException::new);
-        */
         return ' ';
     } 
 

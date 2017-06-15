@@ -19,12 +19,17 @@ public class Main {
             System.exit(1);
         }
 
-        String input = c.readLine("Digite o input: ");
+        String input = c.readLine("Input: ");
         try {
             Stream s = new CharacterStream(input);
-            System.out.println("Output: " + Finder.firstChar(s));
+            Character foundC = Finder.firstChar(s);
+            if (foundC != ' ') {
+                System.out.println("Output: " + Finder.firstChar(s));
+            } else {
+                System.out.println("Output: Caracter  não encontrado");
+            }
         } catch (NoValueFoundException e) {
-            System.out.println("Output: ");
+            System.out.println("Output: Caracter  não encontrado");
         }
         
     }
