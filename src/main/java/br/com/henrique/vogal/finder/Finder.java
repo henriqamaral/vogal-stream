@@ -1,68 +1,48 @@
 package br.com.henrique.vogal.finder;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
-import br.com.henrique.exception.NoValueFoundException;
 import br.com.henrique.vogal.stream.Stream;
+import java.util.stream.IntStream;
 
-/**
- * Finder
- */
 public class Finder {
 
-    private static final String VOGAL_REGEX = "(?i)[aáàãâÁÀÃÂeéêÉÊiíÍoóõôÓÕÔuúÚ]";
+  private static final String VOWEL_REGEX = "(?i)[aáàãâÁÀÃÂeéêÉÊiíÍoóõôÓÕÔuúÚ]";
 
-    public static char firstChar(Stream input) {
-        if (input == null) {
-            throw new IllegalArgumentException("Input nulo");
-        }
+  public static char firstChar(final Stream input) {
 
-        List<Character> chars = new ArrayList<>();
-        //preenche a lista
-        while (input.hasNext()) {
-            chars.add(input.getNext());
-        }
-        List<Character> consoantes = chars.stream()
-            .filter(c -> !isVogal(c)).collect(Collectors.toList());
-        //não possuiu consoante
-        if(consoantes == null || consoantes.isEmpty()) {
-            return ' ';
-        }
-        try {
-            for(Character c : consoantes) {
-            //pega a posicao da consoante
-            int consoanteIndex = chars.indexOf(c);
-            if(consoanteIndex > 0 && consoanteIndex < chars.size() - 1) {
-                if(isVogal(chars.get(consoanteIndex - 1)) && isVogal(chars.get(consoanteIndex + 1))) {
-                    
-                    //comeca a pesquisar na lista a partir do indice da consoante
-                    Character vogal = chars.subList(consoanteIndex + 1, chars.size()).stream().filter(c1 -> {
-                        if(isVogal(c1) && chars.stream().filter(cc -> cc.equals(c1)).count() == 1) {
-                            return true;
-                        }
-                        return false;
-                    }).findFirst().orElseThrow(NoValueFoundException::new);
-                    if(vogal != null) {
-                        return vogal;
-                    }
-                }
-            }
-        }
-        } catch (NoValueFoundException e) {
-            return ' ';
-        }
-        
-        return ' ';
-    } 
+    final List<Character> chars =
+        Optional.ofNullable(input)
+            .map(Finder::mountCharsList)
+            .orElseThrow(() -> new IllegalArgumentException("Input nulo"));
 
+    final int charIndex =
+        IntStream.range(0, chars.size())
+            .filter(index -> filterUniqueVowels(chars.get(index), chars))
+            .filter(index -> index > 2 && isVowel(chars.get(index - 2)) &&  !isVowel(chars.get(index - 1)))
+            .map(index -> chars.get(index))
+            .findFirst()
+            .orElse(' ');
 
-    private static boolean isVogal(char c) {
-        String vogal = String.valueOf(c);
-        return vogal.matches(VOGAL_REGEX);
-    } 
-  
+    return (char) charIndex;
+  }
+
+  private static boolean isVowel(char c) {
+    String vowel = String.valueOf(c);
+    return vowel.matches(VOWEL_REGEX);
+  }
+
+  private static List<Character> mountCharsList(final Stream input) {
+    final List<Character> chars = new ArrayList<>();
+    while (input.hasNext()) {
+      chars.add(input.getNext());
+    }
+    return chars;
+  }
+
+  private static boolean filterUniqueVowels(final Character vowel, final List<Character> chars) {
+    return chars.stream().filter(v -> isVowel(v) && v.equals(vowel)).count() == 1;
+  }
 }
